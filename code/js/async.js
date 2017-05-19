@@ -16,9 +16,9 @@ function sum(arr){
 function getBodyFromMultipleUrls(urls) {
         return Promise.all(urls
                 .map(requestPromise)
-                .catch(err => {
+                .map(promise => promise.catch(err => {
                         console.log(err);
-                }));
+                })));
 }
 
 function sumUpCharacterCount(strs){
