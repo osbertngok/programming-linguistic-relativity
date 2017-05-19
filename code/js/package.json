@@ -1,0 +1,16 @@
+{
+  "name": "fetch-html-demo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "fs-readfile-promise": "^3.0.0",
+    "request": "^2.81.0",
+    "request-promise": "^4.2.1"
+  }
+}
