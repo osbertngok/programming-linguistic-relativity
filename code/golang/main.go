@@ -11,7 +11,7 @@ import (
 )
 
 func loadURLFromConfig() <-chan string {
-	urlCh := make(chan string, 1)
+	urlCh := make(chan string, 100)
 	r, _ := os.Open("../data/urls.lst")
 	bufr := bufio.NewReader(r)
 	go func() {
@@ -31,7 +31,7 @@ func loadURLFromConfig() <-chan string {
 }
 
 func getBodyFromMultipleUrls(urls <-chan string) <-chan string {
-	ch := make(chan string, 1) // buffered
+	ch := make(chan string, 100) // buffered
 	go func() {
 		for url := range urls {
 			resp, err := http.Get(url)
