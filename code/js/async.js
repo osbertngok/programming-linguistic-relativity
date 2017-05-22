@@ -1,7 +1,7 @@
 const requestPromise = require('request-promise');
 const readFile = require('fs-readfile-promise');
 
-function loadURLFromConfig() {
+const loadURLFromConfig = () => {
         return readFile('../data/config.json')
         .then(buf => {
                 const config = JSON.parse(buf.toString());
@@ -9,25 +9,15 @@ function loadURLFromConfig() {
         });
 }
 
-function sum(arr){
-        return arr.reduce((accumulator, currentValue) => (accumulator + currentValue), 0);
-}
+const sum = arr => arr.reduce((accumulator, currentValue) => (accumulator + currentValue), 0);
 
-function getBodyFromMultipleUrls(urls) {
-        return Promise.all(urls
-                .map(requestPromise)
-                .map(promise => promise.catch(err => {
-                        console.log(err);
-                })));
-}
+const getBodyFromMultipleUrls = urls => Promise.all(urls.map(requestPromise));
 
-function sumUpCharacterCount(strs){
-        return sum(strs.map(str => str.length));
-}
+const sumUpCharacterCount = strs => sum(strs.map(str => str.length));
 
-function printCount(count) {
+const printCount = count => {
         console.log(count);
-};
+}
 
 async function main() {
         const urls = await loadURLFromConfig();
