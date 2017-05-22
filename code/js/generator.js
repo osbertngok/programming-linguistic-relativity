@@ -1,31 +1,12 @@
-const requestPromise = require('request-promise');
-const readFile = require('fs-readfile-promise');
 const co = require('co');
-
-const loadURLFromConfig = () => {
-        return readFile('../data/config.json')
-        .then(buf => {
-                const config = JSON.parse(buf.toString());
-                return config.Urls;
-        });
-}
-
-const sum = arr => arr.reduce((accumulator, currentValue) => (accumulator + currentValue), 0);
-
-const getBodyFromMultipleUrls = urls => Promise.all(urls.map(requestPromise));
-
-const sumUpCharacterCount = strs => sum(strs.map(str => str.length));
-
-const printCount = count => {
-        console.log(count);
-}
+const utils = require("./utils");
 
 function main(){
         co(function*(){
-                const urls = yield loadURLFromConfig();
-                const strs = yield getBodyFromMultipleUrls(urls);
-                const count = sumUpCharacterCount(strs);
-                printCount(count);
+                const urls = yield utils.loadURLFromConfig();
+                const strs = yield utils.getBodyFromMultipleUrls(urls);
+                const count = utils.sumUpCharacterCount(strs);
+                utils.printCount(count);
         });
 }
 
