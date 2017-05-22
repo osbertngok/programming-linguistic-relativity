@@ -22,19 +22,24 @@ const loadURLFromConfig = () => {
 
 const getBodyFromMultipleUrls = through2(function(chunk, enc, callback){
         const that = this;
-        if (chunk !== null){
-                requestPromise(chunk.toString()).then(function(data){
-                        that.push(data);
-                        callback();
-                })
-        } else {
-                this.push(null);
+        requestPromise(chunk.toString()).then(function(data){
+                that.push(data);
                 callback();
-        }
-
+        })
 });
 
-const sum = arr => arr.reduce((accumulator, currentValue) => (accumulator + currentValue), 0);
+const sumUpCharacterCount = function(sumUpCallback){
+        return through2(function(chunk, enc, callback){
+                if (typeof this.sum === 'undefined'){
+                        this.sum = 0;
+                }
+                this.sum += parseInt(chunk.length.toString(), 10);
+                callback();
+        }, function(){
+                sumUpCallback(this.sum);
+        });
+};
+
 
 const printCount = count => {
         console.log(count);
@@ -43,19 +48,7 @@ const printCount = count => {
 function main(){
         loadURLFromConfig()
                 .pipe(getBodyFromMultipleUrls)
-                .pipe(through2(function(chunk, enc, callback){
-                        this.push(chunk.length.toString());
-                        callback();
-                }))
-                .pipe(through2(function(chunk, enc, callback){
-                        if (typeof this.sum === 'undefined'){
-                                this.sum = 0;
-                        }
-                        this.sum += parseInt(chunk.toString(), 10);
-                        callback();
-                }, function(){
-                        printCount(this.sum);
-                }));
+                .pipe(sumUpCharacterCount(printCount));
 }
 
 main();
