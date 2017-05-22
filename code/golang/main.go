@@ -1,31 +1,39 @@
 package main
 
 import (
-	"encoding/json"
+	"bufio"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
+	"os"
+	"strings"
 )
 
-type demoConfig struct {
-	Urls []string
+func loadURLFromConfig() <-chan string {
+	urlCh := make(chan string, 1)
+	r, _ := os.Open("../data/urls.lst")
+	bufr := bufio.NewReader(r)
+	go func() {
+		for {
+			url, err := bufr.ReadString('\n')
+			if err != nil {
+				if err == io.EOF {
+					close(urlCh)
+					return
+				}
+				panic(err)
+			}
+			urlCh <- strings.Trim(url, "\n")
+		}
+	}()
+	return urlCh
 }
 
-func loadURLFromConfig() []string {
-	raw, _ := ioutil.ReadFile("../data/config.json")
-	var config demoConfig
-	err := json.Unmarshal(raw, &config)
-	if err != nil {
-		panic(err)
-	}
-	return config.Urls
-}
-
-func getBodyFromMultipleUrls(urls []string) <-chan string {
-	ch := make(chan string, len(urls)) // buffered
-	for _, url := range urls {
-		go func(url string) {
-
+func getBodyFromMultipleUrls(urls <-chan string) <-chan string {
+	ch := make(chan string, 1) // buffered
+	go func() {
+		for url := range urls {
 			resp, err := http.Get(url)
 			if err != nil {
 				panic(err)
@@ -36,24 +44,20 @@ func getBodyFromMultipleUrls(urls []string) <-chan string {
 				panic(err)
 			}
 			ch <- string(body)
-		}(url)
-	}
+
+		}
+		close(ch)
+		return
+	}()
 	return ch
 }
 
 func sumUpCharacterCount(strs <-chan string) int {
 	characterCount := 0
-	httpRequestCount := 0
-	for {
-		select {
-		case str := <-strs:
-			characterCount += len(str)
-			httpRequestCount++
-			if httpRequestCount == cap(strs) {
-				return characterCount
-			}
-		}
+	for str := range strs {
+		characterCount += len(str)
 	}
+	return characterCount
 }
 
 func printCount(count int) {
