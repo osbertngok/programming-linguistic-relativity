@@ -2,10 +2,9 @@ const requestPromise = require('request-promise');
 const readFile = require('fs-readfile-promise');
 
 const loadURLFromConfig = () => {
-        return readFile('../../data/config.json')
+        return readFile('../../data/urls.lst')
         .then(buf => {
-                const config = JSON.parse(buf.toString());
-                return config.Urls;
+                return buf.toString().split("\n").filter(str => str);
         });
 }
 
